@@ -22,6 +22,22 @@ main:   # Load data from memory
         
 ####################
 # Start of your code
+        
+        # create mask to leave only 8 lower bits of word
+        srli    t2, t0, 16
+        # save only 8 lower bits of word b 
+        and     s1, t4, t2
+        # multiply 8 lower bits of word b with entirety of a
+        mul     t5, t3, s1
+
+        # create mask to leave only 8 upper bits of word
+        slli    t2, t2, 8
+        # save only 8 upper bits of word b
+        and     s1, t4, t2
+        # multiply 8 upper bits of word b with entirety pf a
+        mul     t6, t3, s1
+        # add result from both multiplication products and save in result register
+        add     t6, t6, t5
 
 # Use the code below for 16x8 multiplication
 #   mul		<PROD>, <FACTOR1>, <FACTOR2>
