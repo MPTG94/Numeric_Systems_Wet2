@@ -12,6 +12,16 @@ module mult32x32 (
 // Put your code here
 // ------------------
 
+// FSM synchronous procedural block.
+    always_ff @(posedge clk, posedge rst) begin
+        if (rst == 1'b1) begin
+            current_state <= idle_st;
+        end
+        else begin
+            current_state <= next_state;
+        end
+    end
+
 
 // End of your code
 
