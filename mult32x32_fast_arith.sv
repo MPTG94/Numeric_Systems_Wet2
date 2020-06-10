@@ -17,6 +17,84 @@ module mult32x32_fast_arith (
 // Put your code here
 // ------------------
 
+logic [5:0] shift_amount;
+logic [7:0] a_bits;
+logic [15:0] b_bits;
+logic [23:0] multiplier_result;
+logic [63:0] shifted_result;
+logic [63:0] addition_result;
+
+always_comb begin
+    // 4->1 mux to select correct a bits
+    a_msb_is_0 = 1'b0;
+    b_msw_is_0 = 1'b0;
+    case(a_sel)
+        2'b00: begin
+            a_bits = a[7:0];
+        end
+        2'b01: begin
+            a_bits = a[15:8];
+        end
+        2'b10: begin
+            a_bits = a[23:16];
+        end
+        2'b11: begin
+            a_bits = a[31:24];
+        end
+        default: break;
+    endcase    
+    
+    // Checking state of a msb
+    if (a[31:24] == 8'b00000000) begin
+        a_msb_is_0 = 1'b1;
+    end
+
+    // Checking state of b msb
+    if (b[31:16] == 16'b0000000000000000) begin
+        b_msw_is_0 = 1'b1;
+    end
+	
+    // 2->1 mux to select correct b bits
+    case(b_sel)
+        1'b0: begin
+            b_bits = b[15:0];
+        end
+        1'b1: begin
+            b_bits = b[31:16];
+        end
+        default: break;
+    endcase    
+    shift_amount = shift_sel * 8;
+
+    // Saving the result of multiplication
+    multiplier_result = a_bits * b_bits;
+    // Shifting the result to the correct position
+    shifted_result = multiplier_result << shift_amount;
+    addition_result = product + shifted_result;
+end
+
+// // Saving the result of multiplication
+// assign multiplier_result = a_bits * b_bits;
+// // Shifting the result to the correct position
+// assign shifted_result = multiplier_result << shift_amount;
+
+// FSM synchronous procedural block.
+// an FF is necessary to remember the current product result
+// 64 bit adder for previous product and shifted result
+    always_ff @(posedge clk, posedge reset) begin
+        if (reset == 1'b1) begin
+            product <= {64{1'b0}};
+        end
+        else begin
+            if (clr_prod == 1'b1) begin
+                product <= {64{1'b0}};
+            end else if (upd_prod == 1'b1) begin
+                // product <= product + shifted_result;
+                product <= addition_result;
+            end
+        end
+    end
+
 
 // End of your code
 
