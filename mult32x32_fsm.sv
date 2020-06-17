@@ -38,14 +38,22 @@ states next_state;
         upd_prod = 1'b1;
         clr_prod = 1'b0;
 
+        if (reset == 1'b1) begin
+            busy = 1'b0;
+            upd_prod = 1'b0;
+            clr_prod = 1'b1;
+        end
+
         case(current_state)
             idle_st: begin
                 if (start == 1'b0) begin
                     busy = 1'b0;
                     upd_prod = 1'b0;
-                    clr_prod = 1'b1;
+                    clr_prod = 1'b0;
                 end else begin
                     busy = 1'b0;
+                    upd_prod = 1'b0;
+                    clr_prod = 1'b1;
                     next_state = a1b1;
                 end
             end
@@ -88,9 +96,9 @@ states next_state;
                 next_state = a4b2;
             end
             a4b2: begin
-                busy = 1'b0;
-                upd_prod = 1'b0;
-                clr_prod = 1'b1;
+                busy = 1'b1;
+                upd_prod = 1'b1;
+                clr_prod = 1'b0;
                 next_state = idle_st;
             end
         endcase
